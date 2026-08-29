@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tado-export"
+version = "0.1.0"
+description = "Export historic measurement data from tado° devices into SQLite and visualise it locally."
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "pandas>=2.1",
+    "plotly>=5.20",
+    "dash>=2.16",
+]
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=15.0"]
+
+[project.scripts]
+tado-export = "tado_export.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tado_export*"]
+
+[tool.setuptools.package-data]
+tado_export = ["report_app.js"]

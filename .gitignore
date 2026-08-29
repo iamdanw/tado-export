@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Local data & secrets — never commit these
+*.db
+*.db-wal
+*.db-shm
+export/
+token.json
+.tado-export.toml
