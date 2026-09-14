@@ -19,6 +19,10 @@ API_BASE = "https://my.tado.com/api/v2"
 MINDER_BASE = "https://minder.tado.com/v1"
 EIQ_BASE = "https://energy-insights.tado.com/api"
 
+# tado X (generation "LINE_X") homes report zero zones from the classic API —
+# rooms replaced zones there, and only surface through this newer host.
+HOPS_BASE = "https://hops.tado.com"
+
 # Daily REST quota. 100/day without a subscription, 20_000/day with Auto-Assist
 # or AI Assist. https://help.tado.com/en/articles/12165739-limitation-for-rest-api-usage
 DEFAULT_DAILY_BUDGET = 20_000

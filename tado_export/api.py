@@ -15,7 +15,7 @@ from datetime import date
 import requests
 
 from .auth import TokenManager
-from .config import API_BASE, EIQ_BASE, MINDER_BASE, USER_AGENT
+from .config import API_BASE, EIQ_BASE, HOPS_BASE, MINDER_BASE, USER_AGENT
 
 # tado reports remaining quota as:  ratelimit: "perday";r=19873
 # and, once exhausted:              ratelimit: "perday";r=0;t=3600
@@ -168,6 +168,15 @@ class TadoClient:
 
     def zones(self, home_id: int) -> list[dict]:
         return self.get(f"/homes/{home_id}/zones")
+
+    def rooms_and_devices(self, home_id: int) -> dict | None:
+        """tado X room + device inventory, from the newer hops.tado.com host.
+
+        tado X (``generation: "LINE_X"``) homes have no zones — rooms took
+        their place — and this is where they live instead. A room id can be
+        used anywhere a zoneId is expected, ``dayReport`` included.
+        """
+        return self.get(f"/homes/{home_id}/roomsAndDevices", base=HOPS_BASE, allow_404=True)
 
     def running_times(self, home_id: int, start: date, end: date) -> dict | None:
         """Per-day, per-zone heating running time.

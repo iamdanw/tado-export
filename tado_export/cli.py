@@ -67,10 +67,39 @@ def _refresh_home_metadata(conn, client: TadoClient, home_id: int | None) -> lis
     targets = [home_id] if home_id is not None else ids
 
     for hid in targets:
-        db.upsert_home(conn, client.home(hid))
-        db.upsert_zones(conn, hid, client.zones(hid))
+        home = client.home(hid)
+        db.upsert_home(conn, home)
+        zones = client.zones(hid)
+        if not zones and home.get("generation") == "LINE_X":
+            zones = _tado_x_rooms_as_zones(client, hid)
+        db.upsert_zones(conn, hid, zones)
     conn.commit()
     return targets
+
+
+def _tado_x_rooms_as_zones(client: TadoClient, home_id: int) -> list[dict]:
+    """Reshape tado X rooms into the classic zone dict shape.
+
+    That keeps everything downstream — ``db.upsert_zones``, and ``dayReport``
+    called with a room id in place of a zoneId — unaware of the difference.
+    Rooms carry no creation date or zone type of their own: tado X is heating
+    only (hot water is a home-level feature there, not a zone).
+    """
+    payload = client.rooms_and_devices(home_id) or {}
+    zones = []
+    for room in payload.get("rooms", []):
+        if room.get("roomId") is None:
+            continue
+        zones.append(
+            {
+                "id": room["roomId"],
+                "name": room.get("roomName"),
+                "type": "HEATING",
+                "dateCreated": None,
+                "deviceTypes": [d["type"] for d in room.get("devices", []) if d.get("type")],
+            }
+        )
+    return zones
 
 
 # -- commands -------------------------------------------------------------
